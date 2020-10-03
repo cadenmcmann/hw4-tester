@@ -202,5 +202,4 @@ class TestClassify(unittest.TestCase):
 
 if __name__ == '__main__':
     print('Tester %s' % version)
-    print('Reference runtime: 0.202s')
     unittest.main()
