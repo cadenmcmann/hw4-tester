@@ -58,7 +58,17 @@ class TestClassify(unittest.TestCase):
     # returns a list of dicts
     def test_load_training_data(self):
         vocab = create_vocabulary('./EasyFiles/', 1)
-        check1 = load_training_data(vocab, './EasyFiles/')
+        model = load_training_data(vocab,'./EasyFiles/')
+        expected_model = [
+                {'label': '2016', 'bow': {'hello': 1, 'world': 1}},
+                {'label': '2016',
+                        'bow': {'a': 2, 'dog': 1, 'chases': 1, 'cat': 1,
+                                '.': 1}},
+                {'label': '2020',
+                        'bow': {'it': 1, 'is': 1, 'february': 1, '19': 1,
+                                ',': 1, '2020': 1, '.': 1}}
+        ]
+        self.assertEqual(model, expected_model)
 
     # prior(training_data: list, label_list: list)
     # returns a dict mapping labels to floats
