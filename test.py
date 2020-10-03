@@ -88,11 +88,43 @@ class TestClassify(unittest.TestCase):
     # p_word_given_label(vocab: list, training_data: list, label: str)
     # returns a dict mapping words to floats
     # assertAlmostEqual(a, b) can be handy here
-    def test_p_word_give_label(self):
+    def test_p_word_given_label(self):
         vocab = create_vocabulary('./EasyFiles/', 1)
         training_data = load_training_data(vocab, './EasyFiles/')
-        check1 = p_word_given_label(vocab, training_data, '2020')
-        check2 = p_word_given_label(vocab, training_data, '2016')
+
+        log_probabilities = p_word_given_label(vocab, training_data, '2020')
+        expected_log_probabilities = {',': -2.3513752571634776,
+                '.': -2.3513752571634776, '19': -2.3513752571634776,
+                '2020': -2.3513752571634776, 'a': -3.044522437723423,
+                'cat': -3.044522437723423, 'chases': -3.044522437723423,
+                'dog': -3.044522437723423, 'february': -2.3513752571634776,
+                'hello': -3.044522437723423, 'is': -2.3513752571634776,
+                'it': -2.3513752571634776, 'world': -3.044522437723423,
+                None: -3.044522437723423}
+        for k in expected_log_probabilities:
+            self.assertIn(k, log_probabilities)
+            self.assertAlmostEqual(log_probabilities[k],
+                    expected_log_probabilities[k])
+        # Check if log_probabilities has unexpected extra entries
+        for k in log_probabilities:
+            self.assertIn(k, expected_log_probabilities)
+
+        log_probabilities = p_word_given_label(vocab, training_data, '2016')
+        expected_log_probabilities = {',': -3.091042453358316,
+                '.': -2.3978952727983707, '19': -3.091042453358316,
+                '2020': -3.091042453358316, 'a': -1.9924301646902063,
+                'cat': -2.3978952727983707, 'chases': -2.3978952727983707,
+                'dog': -2.3978952727983707, 'february': -3.091042453358316,
+                'hello': -2.3978952727983707, 'is': -3.091042453358316,
+                'it': -3.091042453358316, 'world': -2.3978952727983707,
+                None: -3.091042453358316}
+        for k in expected_log_probabilities:
+            self.assertIn(k, log_probabilities)
+            self.assertAlmostEqual(log_probabilities[k],
+                    expected_log_probabilities[k])
+        # Check if log_probabilities has unexpected extra entries
+        for k in log_probabilities:
+            self.assertIn(k, expected_log_probabilities)
 
     # train(training_directory: str, cutoff: int)
     # returns a dict
