@@ -13,7 +13,7 @@ classify(model: dict, filepath: str)
 __author__ = 'cs540-testers'
 __credits__ = ['Saurabh Kulkarni', 'Alex Moon', 'Stephen Jasina',
                'Harrison Clark']
-version = 'V1.0'
+version = 'V1.1'
 
 from classify import train, create_bow, load_training_data, prior, \
     p_word_given_label, classify, create_vocabulary
