@@ -21,6 +21,15 @@ import unittest
 
 
 class TestClassify(unittest.TestCase):
+    def compare_dicts(self, a, b):
+        '''Compares two dicts that map strings to floats'''
+        for k in a:
+            self.assertIn(k, b)
+            self.assertAlmostEqual(a[k], b[k])
+
+        # Check if log_probabilities has unexpected extra entries
+        for k in b:
+            self.assertIn(k, a)
 
     # create_vocabulary(training_directory: str, cutoff: int)
     # returns a list
@@ -89,14 +98,6 @@ class TestClassify(unittest.TestCase):
     # returns a dict mapping words to floats
     # assertAlmostEqual(a, b) can be handy here
     def test_p_word_given_label(self):
-        def compare_dicts(a, b):
-            for k in a:
-                self.assertIn(k, b)
-                self.assertAlmostEqual(a[k], b[k])
-            # Check if log_probabilities has unexpected extra entries
-            for k in b:
-                self.assertIn(k, a)
-
         vocab = create_vocabulary('./EasyFiles/', 1)
         training_data = load_training_data(vocab, './EasyFiles/')
 
@@ -109,7 +110,7 @@ class TestClassify(unittest.TestCase):
                 'hello': -3.044522437723423, 'is': -2.3513752571634776,
                 'it': -2.3513752571634776, 'world': -3.044522437723423,
                 None: -3.044522437723423}
-        compare_dicts(log_probabilities, expected_log_probabilities)
+        self.compare_dicts(log_probabilities, expected_log_probabilities)
 
         log_probabilities = p_word_given_label(vocab, training_data, '2016')
         expected_log_probabilities = {',': -3.091042453358316,
@@ -120,7 +121,7 @@ class TestClassify(unittest.TestCase):
                 'hello': -2.3978952727983707, 'is': -3.091042453358316,
                 'it': -3.091042453358316, 'world': -2.3978952727983707,
                 None: -3.091042453358316}
-        compare_dicts(log_probabilities, expected_log_probabilities)
+        self.compare_dicts(log_probabilities, expected_log_probabilities)
 
         vocab = create_vocabulary('./EasyFiles/', 2)
         training_data = load_training_data(vocab, './EasyFiles/')
@@ -128,17 +129,51 @@ class TestClassify(unittest.TestCase):
         log_probabilities = p_word_given_label(vocab, training_data, '2020')
         expected_log_probabilities = {'.': -1.6094379124341005,
                 'a': -2.302585092994046, None: -0.35667494393873267}
-        compare_dicts(log_probabilities, expected_log_probabilities)
+        self.compare_dicts(log_probabilities, expected_log_probabilities)
 
         log_probabilities = p_word_given_label(vocab, training_data, '2016')
         expected_log_probabilities = {'.': -1.7047480922384253,
                 'a': -1.2992829841302609, None: -0.6061358035703157}
-        compare_dicts(log_probabilities, expected_log_probabilities)
+        self.compare_dicts(log_probabilities, expected_log_probabilities)
 
     # train(training_directory: str, cutoff: int)
     # returns a dict
     def test_train(self):
-        check1 = train('./EasyFiles/', 2)
+        def check_model(model, expected_model):
+            keys = ['vocabulary', 'log prior',
+                    'log p(w|y=2020)', 'log p(w|y=2016)']
+
+            for k in keys:
+                self.assertIn(k, model)
+
+                if k == 'vocabulary':
+                    self.assertEqual(model[k], expected_model[k])
+                else:
+                    self.compare_dicts(model[k], expected_model[k])
+
+            # Ensure our model doesn't have extra keys
+            for k in model:
+                self.assertIn(k, keys)
+
+        model = train('./EasyFiles/', 2)
+        expected_model = {
+            'vocabulary': ['.', 'a'],
+            'log prior': {
+                '2020': -0.916290731874155,
+                '2016': -0.5108256237659905
+            },
+            'log p(w|y=2020)': {
+                '.': -1.6094379124341005,
+                'a': -2.302585092994046,
+                None: -0.35667494393873267
+            },
+            'log p(w|y=2016)': {
+                '.': -1.7047480922384253,
+                'a': -1.2992829841302609,
+                None: -0.6061358035703157
+            }
+        }
+        check_model(model, expected_model)
 
     # classify(model: dict, filepath: str)
     # returns a dict
