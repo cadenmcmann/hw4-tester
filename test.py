@@ -13,7 +13,7 @@ classify(model: dict, filepath: str)
 __author__ = 'cs540-testers'
 __credits__ = ['Saurabh Kulkarni', 'Alex Moon', 'Stephen Jasina',
                'Harrison Clark']
-version = 'V0.0'
+version = 'V1.0'
 
 from classify import train, create_bow, load_training_data, prior, \
     p_word_given_label, classify, create_vocabulary
@@ -25,7 +25,10 @@ class TestClassify(unittest.TestCase):
         '''Compares two dicts that map strings to floats'''
         for k in a:
             self.assertIn(k, b)
-            self.assertAlmostEqual(a[k], b[k])
+            if type(a[k] == 'float'):
+                self.assertAlmostEqual(a[k], b[k])
+            else:
+                self.assertEqual(a[k], b[k])
 
         # Check if log_probabilities has unexpected extra entries
         for k in b:
@@ -179,10 +182,16 @@ class TestClassify(unittest.TestCase):
     # returns a dict
     def test_classify(self):
         model = train('./corpus/training/', 2)
-        check1 = classify(model, './corpus/test/2016/0.txt')
+        classification = classify(model, './corpus/test/2016/0.txt')
+        expected_classification = {
+            'log p(y=2020|x)': -3906.351945884105,
+            'log p(y=2016|x)': -3916.458747858926,
+            'predicted y': '2020'
+        }
+        self.compare_dicts(classification, expected_classification)
 
 
 if __name__ == '__main__':
     print('Tester %s' % version)
-    print('Reference runtime: 0.383s')
+    print('Reference runtime: 0.202s')
     unittest.main()
