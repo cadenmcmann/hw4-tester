@@ -38,7 +38,21 @@ class TestClassify(unittest.TestCase):
     # returns a dict
     def test_create_bow(self):
         vocab = create_vocabulary('./EasyFiles/', 1)
-        check1 = create_bow(vocab, './EasyFiles/2016/1.txt')
+
+        bow = create_bow(vocab, './EasyFiles/2016/1.txt')
+        expected_bow = {'a': 2, 'dog': 1, 'chases': 1, 'cat': 1, '.': 1}
+        self.assertEqual(bow, expected_bow)
+
+        bow = create_bow(vocab, './EasyFiles/2020/2.txt')
+        expected_bow = {'it': 1, 'is': 1, 'february': 1, '19': 1, ',': 1,
+                '2020': 1, '.': 1}
+        self.assertEqual(bow, expected_bow)
+
+        vocab = create_vocabulary('./EasyFiles/', 2)
+
+        bow = create_bow(vocab, './EasyFiles/2016/1.txt')
+        expected_bow = {None: 3, 'a': 2, '.': 1}
+        self.assertEqual(bow, expected_bow)
 
     # load_training_data(vocab: list, directory: str)
     # returns a list of dicts
