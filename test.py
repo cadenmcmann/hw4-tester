@@ -13,11 +13,12 @@ classify(model: dict, filepath: str)
 __author__ = 'cs540-testers'
 __credits__ = ['Saurabh Kulkarni', 'Alex Moon', 'Stephen Jasina',
                'Harrison Clark']
-version = 'V1.0'
+version = 'V1.1'
 
 from classify import train, create_bow, load_training_data, prior, \
     p_word_given_label, classify, create_vocabulary
 import unittest
+from os import path
 
 class TestClassify(unittest.TestCase):
     def compare_dicts(self, a, b):
@@ -26,8 +27,10 @@ class TestClassify(unittest.TestCase):
         # Check that all elements of a are in b
         for k in a:
             self.assertIn(k, b)
-            if type(a[k] == 'float'):
+            if type(a[k]) is float:
                 self.assertAlmostEqual(a[k], b[k])
+            elif type(a[k]) is dict:
+                self.compare_dicts(a[k], b[k])
             else:
                 self.assertEqual(a[k], b[k])
 
@@ -38,40 +41,40 @@ class TestClassify(unittest.TestCase):
     # create_vocabulary(training_directory: str, cutoff: int)
     # returns a list
     def test_create_vocabulary(self):
-        vocab = create_vocabulary('./EasyFiles/', 1)
+        vocab = create_vocabulary(path.join('.', 'EasyFiles'), 1)
         expected_vocab = [',', '.', '19', '2020', 'a', 'cat', 'chases', 'dog',
                 'february', 'hello', 'is', 'it', 'world']
         self.assertEqual(vocab, expected_vocab)
 
-        vocab = create_vocabulary('./EasyFiles/', 2)
+        vocab = create_vocabulary(path.join('.', 'EasyFiles'), 2)
         expected_vocab = ['.', 'a']
         self.assertEqual(vocab, expected_vocab)
 
     # create_bow(vocab: dict, filepath: str)
     # returns a dict
     def test_create_bow(self):
-        vocab = create_vocabulary('./EasyFiles/', 1)
+        vocab = create_vocabulary(path.join('.', 'EasyFiles'), 1)
 
-        bow = create_bow(vocab, './EasyFiles/2016/1.txt')
+        bow = create_bow(vocab, path.join('.', 'EasyFiles', '2016', '1.txt'))
         expected_bow = {'a': 2, 'dog': 1, 'chases': 1, 'cat': 1, '.': 1}
         self.assertEqual(bow, expected_bow)
 
-        bow = create_bow(vocab, './EasyFiles/2020/2.txt')
+        bow = create_bow(vocab, path.join('.', 'EasyFiles', '2020', '2.txt'))
         expected_bow = {'it': 1, 'is': 1, 'february': 1, '19': 1, ',': 1,
                 '2020': 1, '.': 1}
         self.assertEqual(bow, expected_bow)
 
-        vocab = create_vocabulary('./EasyFiles/', 2)
+        vocab = create_vocabulary(path.join('.', 'EasyFiles'), 2)
 
-        bow = create_bow(vocab, './EasyFiles/2016/1.txt')
+        bow = create_bow(vocab, path.join('.', 'EasyFiles', '2016', '1.txt'))
         expected_bow = {'a': 2, None: 3, '.': 1}
         self.assertEqual(bow, expected_bow)
 
     # load_training_data(vocab: list, directory: str)
     # returns a list of dicts
     def test_load_training_data(self):
-        vocab = create_vocabulary('./EasyFiles/', 1)
-        training_data = load_training_data(vocab, './EasyFiles/')
+        vocab = create_vocabulary(path.join('.', 'EasyFiles'), 1)
+        training_data = load_training_data(vocab, path.join('.', 'EasyFiles'))
         expected_training_data = [
             {
                 'label': '2020',
@@ -93,8 +96,8 @@ class TestClassify(unittest.TestCase):
     # returns a dict mapping labels to floats
     # assertAlmostEqual(a, b) can be handy here
     def test_prior(self):
-        vocab = create_vocabulary('./corpus/training/', 2)
-        training_data = load_training_data(vocab, './corpus/training/')
+        vocab = create_vocabulary(path.join('.', 'corpus', 'training'), 2)
+        training_data = load_training_data(vocab, path.join('.', 'corpus', 'training'))
         log_probabilities = prior(training_data, ['2020', '2016'])
         expected_log_probabilities = {'2020': -0.32171182103809226,
                 '2016': -1.2906462863976689}
@@ -104,9 +107,9 @@ class TestClassify(unittest.TestCase):
     # p_word_given_label(vocab: list, training_data: list, label: str)
     # returns a dict mapping words to floats
     # assertAlmostEqual(a, b) can be handy here
-    def test_p_word_given_label(self):
-        vocab = create_vocabulary('./EasyFiles/', 1)
-        training_data = load_training_data(vocab, './EasyFiles/')
+    def test_p_word_given_label_2020(self):
+        vocab = create_vocabulary(path.join('.', 'EasyFiles'), 1)
+        training_data = load_training_data(vocab, path.join('.', 'EasyFiles'))
 
         log_probabilities = p_word_given_label(vocab, training_data, '2020')
         expected_log_probabilities = {',': -2.3513752571634776,
@@ -119,6 +122,18 @@ class TestClassify(unittest.TestCase):
                 None: -3.044522437723423}
         self.compare_dicts(log_probabilities, expected_log_probabilities)
 
+        vocab = create_vocabulary(path.join('.', 'EasyFiles'), 2)
+        training_data = load_training_data(vocab, path.join('.', 'EasyFiles'))
+
+        log_probabilities = p_word_given_label(vocab, training_data, '2020')
+        expected_log_probabilities = {'.': -1.6094379124341005,
+                'a': -2.302585092994046, None: -0.35667494393873267}
+        self.compare_dicts(log_probabilities, expected_log_probabilities)
+
+    def test_p_word_given_label_2016(self):
+        vocab = create_vocabulary(path.join('.', 'EasyFiles'), 1)
+        training_data = load_training_data(vocab, path.join('.', 'EasyFiles'))
+
         log_probabilities = p_word_given_label(vocab, training_data, '2016')
         expected_log_probabilities = {',': -3.091042453358316,
                 '.': -2.3978952727983707, '19': -3.091042453358316,
@@ -130,13 +145,8 @@ class TestClassify(unittest.TestCase):
                 None: -3.091042453358316}
         self.compare_dicts(log_probabilities, expected_log_probabilities)
 
-        vocab = create_vocabulary('./EasyFiles/', 2)
-        training_data = load_training_data(vocab, './EasyFiles/')
-
-        log_probabilities = p_word_given_label(vocab, training_data, '2020')
-        expected_log_probabilities = {'.': -1.6094379124341005,
-                'a': -2.302585092994046, None: -0.35667494393873267}
-        self.compare_dicts(log_probabilities, expected_log_probabilities)
+        vocab = create_vocabulary(path.join('.', 'EasyFiles'), 2)
+        training_data = load_training_data(vocab, path.join('.', 'EasyFiles'))
 
         log_probabilities = p_word_given_label(vocab, training_data, '2016')
         expected_log_probabilities = {'.': -1.7047480922384253,
@@ -146,24 +156,7 @@ class TestClassify(unittest.TestCase):
     # train(training_directory: str, cutoff: int)
     # returns a dict
     def test_train(self):
-        # Use this function to compare two models
-        def check_model(model, expected_model):
-            keys = ['vocabulary', 'log prior',
-                    'log p(w|y=2020)', 'log p(w|y=2016)']
-
-            for k in keys:
-                self.assertIn(k, model)
-
-                if k == 'vocabulary':
-                    self.assertEqual(model[k], expected_model[k])
-                else:
-                    self.compare_dicts(model[k], expected_model[k])
-
-            # Ensure our model doesn't have extra keys
-            for k in model:
-                self.assertIn(k, keys)
-
-        model = train('./EasyFiles/', 2)
+        model = train(path.join('.', 'EasyFiles'), 2)
         expected_model = {
             'vocabulary': ['.', 'a'],
             'log prior': {
@@ -181,13 +174,13 @@ class TestClassify(unittest.TestCase):
                 None: -0.6061358035703157
             }
         }
-        check_model(model, expected_model)
+        self.compare_dicts(model, expected_model)
 
     # classify(model: dict, filepath: str)
     # returns a dict
-    def test_classify(self):
-        model = train('./corpus/training/', 2)
-        classification = classify(model, './corpus/test/2016/0.txt')
+    def test_classify_2020(self):
+        model = train(path.join('.', 'corpus', 'training'), 2)
+        classification = classify(model, path.join('.', 'corpus', 'test', '2016', '0.txt'))
         expected_classification = {
             'log p(y=2020|x)': -3906.351945884105,
             'log p(y=2016|x)': -3916.458747858926,
@@ -195,8 +188,18 @@ class TestClassify(unittest.TestCase):
         }
         self.compare_dicts(classification, expected_classification)
 
+    def test_classify_2016(self):
+        model = train(path.join('.', 'corpus', 'training'), 2)
+        classification = classify(model, path.join('.', 'corpus', 'test', '2016', '19.txt'))
+        expected_classification = {
+            'log p(y=2016|x)': -3800.4027665365134,
+            'log p(y=2020|x)': -3805.776535552692,
+            'predicted y': '2016'
+        }
+        self.compare_dicts(classification, expected_classification)
+
+
 
 if __name__ == '__main__':
     print('Tester %s' % version)
-    print('Reference runtime: 0.202s')
     unittest.main()
