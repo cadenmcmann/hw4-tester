@@ -1,4 +1,4 @@
-"""
+'''
 HW4 is to be written in a file called classify.py with the following interface:
 
 create_vocabulary(training_directory: str, cutoff: int)
@@ -9,18 +9,15 @@ p_word_given_label(vocab: list, training_data: list, label: str)
 train(training_directory: str, cutoff: int)
 classify(model: dict, filepath: str)
 
-"""
-__author__ = "cs540-testers"
-__credits__ = ["Saurabh Kulkarni", "Alex Moon", "Stephen Jasina",
-               "Harrison Clark"]
+'''
+__author__ = 'cs540-testers'
+__credits__ = ['Saurabh Kulkarni', 'Alex Moon', 'Stephen Jasina',
+               'Harrison Clark']
+version = 'V0.0'
 
-import sys
 from classify import train, create_bow, load_training_data, prior, \
     p_word_given_label, classify, create_vocabulary
-import time
-import difflib
 import unittest
-version = "V0.0"
 
 
 class TestClassify(unittest.TestCase):
@@ -28,8 +25,14 @@ class TestClassify(unittest.TestCase):
     # create_vocabulary(training_directory: str, cutoff: int)
     # returns a list
     def test_create_vocabulary(self):
-        check1 = create_vocabulary('./EasyFiles/', 1)
-        check2 = create_vocabulary('./EasyFiles/', 2)
+        vocab = create_vocabulary('./EasyFiles/', 1)
+        expected_vocab = [',', '.', '19', '2020', 'a', 'cat', 'chases', 'dog',
+                'february', 'hello', 'is', 'it', 'world']
+        self.assertEqual(vocab, expected_vocab)
+
+        vocab = create_vocabulary('./EasyFiles/', 2)
+        expected_vocab = ['.', 'a']
+        self.assertEqual(vocab, expected_vocab)
 
     # create_bow(vocab: dict, filepath: str)
     # returns a dict
@@ -73,41 +76,6 @@ class TestClassify(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    print("Tester %s" % version)
-
-    #backup_stdout = sys.stdout
-    #sys.stdout = open("test.txt", "w")
-
-
-    starttime = time.time()
-
-    # VERSION NUMBER IS NECESSARY. DO NOT MODIFY
-    #print("Version: %s\n" % (version))
-
+    print('Tester %s' % version)
+    print('Reference runtime: 0.383s')
     unittest.main()
-
-    endtime = time.time()
-
-    #sys.stdout.close()
-    #sys.stdout = backup_stdout
-
-    print("Elapsed time was: %.5fs" % (endtime - starttime))
-    print("Reference runtime is ~" + ("0.001s" if no_nqr else "0.291s"))
-
-    """
-    print("See diff below. "
-        + "If you see nothing but the end message, you're good.")
-    with open("test.txt", "r") as livefile:
-        l_text = livefile.readlines()
-        with open( "ref.txt", "r") as reffile:
-            r_text = reffile.readlines()
-            for line in difflib.context_diff(l_text, r_text):
-                print(line.strip())
-    print("This is the end of the tester.\n\n"
-          + "If you think you have a correct solution,\n"
-          + "please copy the printed output of this tester\n"
-          + "from 'Tester " + version
-          + "' to 'This is the end of the tester.'\n"
-          + "and paste it into an issue on \n"
-          + "https://github.com/cs540-testers/HW3-Tester/issues")
-    """
