@@ -19,7 +19,6 @@ from classify import train, create_bow, load_training_data, prior, \
     p_word_given_label, classify, create_vocabulary
 import unittest
 
-
 class TestClassify(unittest.TestCase):
     def compare_dicts(self, a, b):
         '''Compares two dicts that map strings to other (non-container) data'''
@@ -65,7 +64,7 @@ class TestClassify(unittest.TestCase):
         vocab = create_vocabulary('./EasyFiles/', 2)
 
         bow = create_bow(vocab, './EasyFiles/2016/1.txt')
-        expected_bow = {None: 3, 'a': 2, '.': 1}
+        expected_bow = {'a': 2, None: 3, '.': 1}
         self.assertEqual(bow, expected_bow)
 
     # load_training_data(vocab: list, directory: str)
@@ -75,20 +74,20 @@ class TestClassify(unittest.TestCase):
         training_data = load_training_data(vocab, './EasyFiles/')
         expected_training_data = [
             {
+                'label': '2020',
+                'bow': {'it': 1, 'is': 1, 'february': 1, '19': 1, ',': 1,
+                        '2020': 1, '.': 1}
+            },
+            {
                 'label': '2016',
                 'bow': {'hello': 1, 'world': 1}
             },
             {
                 'label': '2016',
                 'bow': {'a': 2, 'dog': 1, 'chases': 1, 'cat': 1, '.': 1}
-            },
-            {
-                'label': '2020',
-                'bow': {'it': 1, 'is': 1, 'february': 1, '19': 1, ',': 1,
-                        '2020': 1, '.': 1}
             }
         ]
-        self.assertEqual(training_data, expected_training_data)
+        self.assertCountEqual(training_data, expected_training_data)
 
     # prior(training_data: list, label_list: list)
     # returns a dict mapping labels to floats
