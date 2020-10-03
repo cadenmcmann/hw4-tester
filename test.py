@@ -22,7 +22,9 @@ import unittest
 
 class TestClassify(unittest.TestCase):
     def compare_dicts(self, a, b):
-        '''Compares two dicts that map strings to floats'''
+        '''Compares two dicts that map strings to other (non-container) data'''
+
+        # Check that all elements of a are in b
         for k in a:
             self.assertIn(k, b)
             if type(a[k] == 'float'):
@@ -30,7 +32,7 @@ class TestClassify(unittest.TestCase):
             else:
                 self.assertEqual(a[k], b[k])
 
-        # Check if log_probabilities has unexpected extra entries
+        # Check if b has unexpected extra entries
         for k in b:
             self.assertIn(k, a)
 
@@ -72,13 +74,19 @@ class TestClassify(unittest.TestCase):
         vocab = create_vocabulary('./EasyFiles/', 1)
         training_data = load_training_data(vocab, './EasyFiles/')
         expected_training_data = [
-                {'label': '2016', 'bow': {'hello': 1, 'world': 1}},
-                {'label': '2016',
-                        'bow': {'a': 2, 'dog': 1, 'chases': 1, 'cat': 1,
-                                '.': 1}},
-                {'label': '2020',
-                        'bow': {'it': 1, 'is': 1, 'february': 1, '19': 1,
-                                ',': 1, '2020': 1, '.': 1}}
+            {
+                'label': '2016',
+                'bow': {'hello': 1, 'world': 1}
+            },
+            {
+                'label': '2016',
+                'bow': {'a': 2, 'dog': 1, 'chases': 1, 'cat': 1, '.': 1}
+            },
+            {
+                'label': '2020',
+                'bow': {'it': 1, 'is': 1, 'february': 1, '19': 1, ',': 1,
+                        '2020': 1, '.': 1}
+            }
         ]
         self.assertEqual(training_data, expected_training_data)
 
@@ -89,12 +97,9 @@ class TestClassify(unittest.TestCase):
         vocab = create_vocabulary('./corpus/training/', 2)
         training_data = load_training_data(vocab, './corpus/training/')
         log_probabilities = prior(training_data, ['2020', '2016'])
-        expected_log_probabilities \
-                = {'2020': -0.32171182103809226, '2016': -1.2906462863976689}
-        self.assertAlmostEqual(log_probabilities['2016'],
-                expected_log_probabilities['2016'])
-        self.assertAlmostEqual(log_probabilities['2020'],
-                expected_log_probabilities['2020'])
+        expected_log_probabilities = {'2020': -0.32171182103809226,
+                '2016': -1.2906462863976689}
+        self.compare_dicts(log_probabilities, expected_log_probabilities)
 
 
     # p_word_given_label(vocab: list, training_data: list, label: str)
@@ -142,6 +147,7 @@ class TestClassify(unittest.TestCase):
     # train(training_directory: str, cutoff: int)
     # returns a dict
     def test_train(self):
+        # Use this function to compare two models
         def check_model(model, expected_model):
             keys = ['vocabulary', 'log prior',
                     'log p(w|y=2020)', 'log p(w|y=2016)']
