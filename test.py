@@ -58,8 +58,8 @@ class TestClassify(unittest.TestCase):
     # returns a list of dicts
     def test_load_training_data(self):
         vocab = create_vocabulary('./EasyFiles/', 1)
-        model = load_training_data(vocab,'./EasyFiles/')
-        expected_model = [
+        training_data = load_training_data(vocab, './EasyFiles/')
+        expected_training_data = [
                 {'label': '2016', 'bow': {'hello': 1, 'world': 1}},
                 {'label': '2016',
                         'bow': {'a': 2, 'dog': 1, 'chases': 1, 'cat': 1,
@@ -68,7 +68,7 @@ class TestClassify(unittest.TestCase):
                         'bow': {'it': 1, 'is': 1, 'february': 1, '19': 1,
                                 ',': 1, '2020': 1, '.': 1}}
         ]
-        self.assertEqual(model, expected_model)
+        self.assertEqual(training_data, expected_training_data)
 
     # prior(training_data: list, label_list: list)
     # returns a dict mapping labels to floats
@@ -76,7 +76,14 @@ class TestClassify(unittest.TestCase):
     def test_prior(self):
         vocab = create_vocabulary('./corpus/training/', 2)
         training_data = load_training_data(vocab, './corpus/training/')
-        check1 = prior(training_data, ['2020', '2016'])
+        log_probabilities = prior(training_data, ['2020', '2016'])
+        expected_log_probabilities \
+                = {'2020': -0.32171182103809226, '2016': -1.2906462863976689}
+        self.assertAlmostEqual(log_probabilities['2016'],
+                expected_log_probabilities['2016'])
+        self.assertAlmostEqual(log_probabilities['2020'],
+                expected_log_probabilities['2020'])
+
 
     # p_word_given_label(vocab: list, training_data: list, label: str)
     # returns a dict mapping words to floats
