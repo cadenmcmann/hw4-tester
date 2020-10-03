@@ -1,3 +1,4 @@
 classify.py
 corpus/
 EasyFiles/
+__pycache__
