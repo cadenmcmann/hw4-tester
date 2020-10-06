@@ -26,10 +26,9 @@ class TestClassify(unittest.TestCase):
         # Check that all elements of a are in b
         for k in a:
             self.assertIn(k, b)
-            if type(a[k]) is float \
-                    or str(type(a[k])) == "<class 'numpy.float64'>":
+            if isinstance(a[k], float):
                 self.assertAlmostEqual(a[k], b[k])
-            elif type(a[k]) is dict:
+            elif isinstance(a[k], dict):
                 self.compare_dicts(a[k], b[k])
             else:
                 self.assertEqual(a[k], b[k])
