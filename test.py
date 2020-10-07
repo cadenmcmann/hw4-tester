@@ -13,7 +13,7 @@ classify(model: dict, filepath: str)
 __author__ = 'cs540-testers'
 __credits__ = ['Saurabh Kulkarni', 'Alex Moon', 'Stephen Jasina',
                'Harrison Clark']
-version = 'V1.1.1'
+version = 'V1.1.2'
 
 from classify import train, create_bow, load_training_data, prior, \
     p_word_given_label, classify, create_vocabulary
@@ -26,9 +26,9 @@ class TestClassify(unittest.TestCase):
         # Check that all elements of a are in b
         for k in a:
             self.assertIn(k, b)
-            if type(a[k]) is float:
+            if isinstance(a[k], float):
                 self.assertAlmostEqual(a[k], b[k])
-            elif type(a[k]) is dict:
+            elif isinstance(a[k], dict):
                 self.compare_dicts(a[k], b[k])
             else:
                 self.assertEqual(a[k], b[k])
